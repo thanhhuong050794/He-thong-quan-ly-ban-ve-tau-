@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 using namespace std;
-
+// matkhau: admin123
 // ===== CLASS Nguoi =====
 class Nguoi {
 protected:
@@ -48,15 +48,15 @@ public:
         : Nguoi(hoTen, ngaySinh, diaChi, dienThoai, email),
           MaKhachHang(maKH), CCCD(cccd), Password(password) {}
 
-    string getMaKhachHang() const { return MaKhachHang; }
+    string getMaKhachHang() const { return MaKhachHang; } //get de lay gia tri cua MaKhachHang (vì MaKhchHang la private)
     string getCCCD() const { return CCCD; }
     string getPassword() const { return Password; }
 
-    void setMaKhachHang(const string& maKH) { MaKhachHang = maKH; }
-    void setCCCD(const string& cccd) { CCCD = cccd; }
+    void setMaKhachHang(const string& maKH) { MaKhachHang = maKH; } // maKH la tham so truyen vao 
+    void setCCCD(const string& cccd) { CCCD = cccd; } //set dung de gan gia tri cho CCCD
     void setPassword(const string& password) { Password = password; }
 
-    void hienThiThongTin() const {
+    void hienThiThongTin() const { 
         cout << "Ma Khach Hang: " << MaKhachHang << endl;
         cout << "CCCD: " << CCCD << endl;
         cout << "Ho Ten: " << HoTen << endl;
@@ -104,8 +104,8 @@ public:
     LichTrinh chuyentau;
     HanhKhach hanhkhach;
 
-    Ve(string maVe = "", long giaVe = 0, LichTrinh ct = LichTrinh())
-        : MaVe(maVe), GiaVe(giaVe), chuyentau(ct) {}
+    Ve(string maVe = "", long giaVe = 0, LichTrinh ct = LichTrinh()) // tham so mac dinh
+        : MaVe(maVe), GiaVe(giaVe), chuyentau(ct) {} // thuoc tinh cua doi tuong Ve
 
     long getGiaVe() const { return GiaVe; }
 };
@@ -139,8 +139,6 @@ bool kiemTraEmail(const string& email) {
     return (at != string::npos && dot != string::npos && dot > at);
 }
 
-
-
 // ===== CLASS PhieuDatVe =====
 class PhieuDatVe {
 private:
@@ -150,11 +148,12 @@ private:
     HanhKhach hanhkhach;
 
 public:
-    PhieuDatVe() : soLuong(0), donGia(0), daHuy(false) {}
-    PhieuDatVe(int sl, long dg, HanhKhach hk) : soLuong(sl), donGia(dg), daHuy(false), hanhkhach(hk) {}
+    PhieuDatVe() : soLuong(0), donGia(0), daHuy(false) {} // ham tao co tham so mac dinh
+    PhieuDatVe(int sl, long dg, HanhKhach hk) : soLuong(sl), donGia(dg), daHuy(false), hanhkhach(hk) {} // ham tao co tham so 
 
     int getSoLuong() { return soLuong; }
     long getDonGia() { return donGia; }
+    
     void setSoLuong(int sl) { soLuong = sl; }
     void setDonGia(long dg) { donGia = dg; }
 
@@ -220,7 +219,7 @@ void themgatau() {
     
     do {
         string ma, ten, diachi, mota;
-        cin.ignore();
+        cin.ignore(); 
         cout << "Nhap ma ga: "; 
         getline(cin, ma);
         cout << "Nhap ten ga: "; 
