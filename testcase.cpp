@@ -7,7 +7,7 @@
 #include <ctime>
 using namespace std;
 // matkhau: admin123
-// ===== CLASS Nguoi =====
+
 class Nguoi {
 protected:
     string HoTen;
@@ -34,7 +34,6 @@ public:
     void setEmail(const string& email) { Email = email; }
 };
 
-// ===== CLASS HanhKhach =====
 class HanhKhach : public Nguoi {
 private:
     string MaKhachHang;
@@ -48,12 +47,12 @@ public:
         : Nguoi(hoTen, ngaySinh, diaChi, dienThoai, email),
           MaKhachHang(maKH), CCCD(cccd), Password(password) {}
 
-    string getMaKhachHang() const { return MaKhachHang; } //get de lay gia tri cua MaKhachHang (vì MaKhchHang la private)
+    string getMaKhachHang() const { return MaKhachHang; }
     string getCCCD() const { return CCCD; }
     string getPassword() const { return Password; }
 
-    void setMaKhachHang(const string& maKH) { MaKhachHang = maKH; } // maKH la tham so truyen vao 
-    void setCCCD(const string& cccd) { CCCD = cccd; } //set dung de gan gia tri cho CCCD
+    void setMaKhachHang(const string& maKH) { MaKhachHang = maKH; }
+    void setCCCD(const string& cccd) { CCCD = cccd; }
     void setPassword(const string& password) { Password = password; }
 
     void hienThiThongTin() const { 
@@ -67,7 +66,6 @@ public:
     }
 };
 
-// ===== KHAI BAO CLASS =====
 class LichTrinh {
 public:
     string maTau;
@@ -75,11 +73,12 @@ public:
     string GaDen;
     string ngay;
     string gioChay;
+    string gioDen;
     long giaVe;
     int soGhe;
 
-    LichTrinh(string maTau = "", string gaDi = "", string gaDen = "", string ngay = "", string gioChay = "", long giaVe = 0, int soGhe = 0)
-        : maTau(maTau), GaDi(gaDi), GaDen(gaDen), ngay(ngay), gioChay(gioChay), giaVe(giaVe), soGhe(soGhe) {}
+    LichTrinh(string maTau = "", string gaDi = "", string gaDen = "", string ngay = "", string gioChay = "", string gioDen = "", long giaVe = 0, int soGhe = 0)
+        : maTau(maTau), GaDi(gaDi), GaDen(gaDen), ngay(ngay), gioChay(gioChay), gioDen(gioDen), giaVe(giaVe), soGhe(soGhe) {}
 };
 
 class GaTau {
@@ -104,8 +103,8 @@ public:
     LichTrinh chuyentau;
     HanhKhach hanhkhach;
 
-    Ve(string maVe = "", long giaVe = 0, LichTrinh ct = LichTrinh()) // tham so mac dinh
-        : MaVe(maVe), GiaVe(giaVe), chuyentau(ct) {} // thuoc tinh cua doi tuong Ve
+    Ve(string maVe = "", long giaVe = 0, LichTrinh ct = LichTrinh())
+        : MaVe(maVe), GiaVe(giaVe), chuyentau(ct) {}
 
     long getGiaVe() const { return GiaVe; }
 };
@@ -116,7 +115,7 @@ vector<LichTrinh> dschuyentau;
 vector<Ve> dsveta;
 const string MATKHAU = "admin123";
 
-// ===== KHAI BAO HAM XỬ LY =====
+// ===== KHAI BAO HAM XU LY =====
 bool xacminhmatkhau();
 bool kiemTraEmail(const string& email);
 bool kiemTraSDT(const string& sdt);
@@ -148,8 +147,8 @@ private:
     HanhKhach hanhkhach;
 
 public:
-    PhieuDatVe() : soLuong(0), donGia(0), daHuy(false) {} // ham tao co tham so mac dinh
-    PhieuDatVe(int sl, long dg, HanhKhach hk) : soLuong(sl), donGia(dg), daHuy(false), hanhkhach(hk) {} // ham tao co tham so 
+    PhieuDatVe() : soLuong(0), donGia(0), daHuy(false) {}
+    PhieuDatVe(int sl, long dg, HanhKhach hk) : soLuong(sl), donGia(dg), daHuy(false), hanhkhach(hk) {}
 
     int getSoLuong() { return soLuong; }
     long getDonGia() { return donGia; }
@@ -237,29 +236,32 @@ void themgatau() {
         cin >> choice;
         if (choice != "a" && choice != "A") break;
     } while (true);
-};
+}
 
 // Ham hien thi danh sach ga tau
 void danhsachgatau(const string& ten, const string& diachi) {
+    cout << "\n=== DANH SACH GA TAU ===\n";
     cout << left << setw(15) << "Ma ga"
          << setw(25) << "Ten ga"
-         << setw(40) << "Dia chi"
-         << setw(30) << "Mo ta" << endl;
-    cout << string(110, '-') << endl;
+         << setw(40) << "Dia chi" << endl;
+    cout << string(80, '-') << endl;
     
     bool hasStation = false;
     for (size_t i = 0; i < dsgatau.size(); i++) {
         const GaTau &gt = dsgatau[i];
         if ((ten.empty() || gt.tenGa.find(ten) != string::npos) &&
-    (diachi.empty() || gt.diaChi.find(diachi) != string::npos)) {
-    cout << left << setw(15) << gt.maGa
-         << setw(25) << gt.tenGa;
-}
+            (diachi.empty() || gt.diaChi.find(diachi) != string::npos)) {
+            
+            cout << left << setw(15) << gt.maGa
+                 << setw(25) << gt.tenGa
+                 << setw(40) << gt.diaChi << endl;  
+            hasStation = true;
+        }
+    }
     
-    if (!hasStation) {
+    if (!hasStation) {  
         cout << "Khong tim thay ga tau nao phu hop.\n";
     }
-}
 }
 
 // Xoa ga tau
@@ -362,6 +364,7 @@ string taoMaXacNhan() {
     return ma;
 }
 
+
 // Dat ve tau
 void datveta() {
     if (dschuyentau.empty()) {
@@ -396,6 +399,13 @@ void datveta() {
     cout << "Nhap gioi tinh: ";
     getline(cin, gioitinh);
     
+    do {
+        cout << "Nhap email: ";
+        getline(cin, email);
+        if (!kiemTraEmail(email)) {
+            cout << "Email khong hop le!\n";
+        }
+    } while (!kiemTraEmail(email));
     
     // Tim chuyen tau
     string gaDi, gaDen, ngay;
@@ -427,7 +437,7 @@ void datveta() {
     } while (!hasTrain);
     
     // Dat ve
-    cout << "\nNhap ma tau muon dat (cach nhau boi dau cach): ";
+    cout << "\nNhap ma tau muon dat: ";
     string input;
     getline(cin, input);
     istringstream iss(input);
@@ -443,9 +453,11 @@ void datveta() {
                 ct.GaDen == gaDen && ct.ngay == ngay) {
                 found = true;
                 if (ct.soGhe > 0) {
-                    HanhKhach hk(ten, cccd, sdt, gioitinh, email);
-                    string maVe = taoMaXacNhan(); // Tạo mã vé ngẫu nhiên
-                    dsveta.push_back(Ve(maVe, ct.giaVe, ct));
+                    HanhKhach hk("KH" + cccd, cccd, sdt, ten, gioitinh, "", sdt, email);
+                    string maVe = taoMaXacNhan();
+                    Ve veNew(maVe, ct.giaVe, ct);
+                    veNew.hanhkhach = hk;
+                    dsveta.push_back(veNew);
                     ct.soGhe--;
                     tongTien += ct.giaVe;
                     danhSachVeDat.push_back(matau);
@@ -469,7 +481,7 @@ void datveta() {
     // Thanh toan
     cout << "\n=== THONG TIN THANH TOAN ===\n";
     cout << "Tong tien: " << fixed << setprecision(0) << tongTien << " VND\n";
-    cout << "So tai khoan: 5386763727\n";
+    cout << "So tai khoan: 99999999999\n";
     cout << "Ngan hang: MB Bank\n";
     cout << "Chu tai khoan: Nguyen Van A\n";
     cout << "\nSau khi chuyen khoan, nhan Enter de tiep tuc...\n";
@@ -500,6 +512,7 @@ void datveta() {
             }
         }
         // Xoa ve da dat
+        int soVeXoa = 0;
         for (int i = dsveta.size() - 1; i >= 0; i--) {
             if (dsveta[i].hanhkhach.getCCCD() == cccd) {
                 bool isNew = false;
@@ -511,9 +524,11 @@ void datveta() {
                 }
                 if (isNew) {
                     dsveta.erase(dsveta.begin() + i);
+                    soVeXoa++;
                 }
             }
         }
+        cout << "Da xoa " << soVeXoa << " ve do nhap sai ma xac nhan.\n";
     }
 }
 
@@ -533,6 +548,10 @@ void huyveta() {
     
     if (danhSachVe.empty()) {
         cout << "Khong tim thay ve nao voi CCCD nay.\n";
+        return;
+    }
+    
+    cout << "\n=== DANH SACH VE CUA BAN ===\n";
     cout << left << setw(15) << "Ma tau"
          << setw(20) << "Ga di"
          << setw(20) << "Ga den"
@@ -549,7 +568,6 @@ void huyveta() {
              << setw(15) << ct.ngay
              << setw(15) << ct.gioChay
              << setw(12) << fixed << setprecision(0) << ct.giaVe << endl;
-    }
     }
     
     cout << "\nNhap ma tau can huy: ";
@@ -605,7 +623,7 @@ void tracuuveta() {
     cout << string(112, '-') << endl;
     
     for (const auto& ve : dsveta) {
-        if (ve.chuyentau.maTau == cccd || ve.MaVe == cccd || ve.chuyentau.GaDi == cccd || ve.chuyentau.GaDen == cccd || ve.GiaVe == stol(cccd)) { // Or use your own logic for matching CCCD
+        if (ve.hanhkhach.getCCCD() == cccd) {
             const LichTrinh &ct = ve.chuyentau;
             cout << left << setw(15) << ve.MaVe
                  << setw(15) << ct.maTau
@@ -640,26 +658,55 @@ void xemhanhkhach() {
          << setw(12) << "Gioi tinh"
          << setw(30) << "Email" << endl;
     cout << string(97, '-') << endl;
-    
+
     for (const auto& ve : dsveta) {
         if (ve.chuyentau.maTau == matau) {
             const HanhKhach &hk = ve.hanhkhach;
             cout << left << setw(25) << hk.getHoTen()
                  << setw(15) << hk.getCCCD()
                  << setw(15) << hk.getDienThoai()
-                 << setw(12) << "" // Ch?a co tr??ng GioiTinh, ?? tr?ng ho?c them n?u c?n
+                 << setw(12) << hk.getNgaySinh() 
                  << setw(30) << hk.getEmail() << endl;
             foundTrain = true;
         }
     }
-    
+
     if (!foundTrain) {
         cout << "Khong co hanh khach nao tren chuyen tau nay.\n";
     }
 }
-
 int main() {
+    srand(time(0));
+    
+    // Thêm dữ liệu mẫu ga tàu
+    dsgatau.push_back(GaTau("HN", "Ha Noi", "120 Le Duan, Hoan Kiem, Ha Noi"));
+    dsgatau.push_back(GaTau("DN", "Da Nang", "202 Hai Phong, Thanh Khe, Da Nang"));
+    dsgatau.push_back(GaTau("SG", "Sai Gon", "1 Nguyen Thong, Q3, TP.HCM"));
+    dsgatau.push_back(GaTau("HUE", "Hue", "2 Bui Thi Xuan, Hue"));
+    dsgatau.push_back(GaTau("NT", "Nha Trang", "17 Thai Nguyen, Nha Trang"));
+    dsgatau.push_back(GaTau("HP", "Hai Phong", "1 Luong Khanh Thien, Hai Phong", "Ga lớn tại thành phố cảng"));
+    dsgatau.push_back(GaTau("PT", "Phan Thiet", "1 Nguyen Du, Phan Thiet", "Ga gần biển Phan Thiết"));
+    dsgatau.push_back(GaTau("QT", "Quy Nhon", "2 Nguyen Hue, Quy Nhon", "Ga trung tâm thành phố Quy Nhơn"));
+    dsgatau.push_back(GaTau("TH", "Thanh Hoa", "3 Le Loi, Thanh Hoa", "Ga lớn khu vực Bắc Trung Bộ"));
+    dsgatau.push_back(GaTau("Vinh", "Vinh", "4 Nguyen Sy Sach, Vinh", "Ga trung chuyển miền Trung"));
+    
+    // Thêm dữ liệu mẫu chuyến tàu
+    dschuyentau.push_back(LichTrinh("SE1", "Ha Noi", "Da Nang", "20/10/2025", "19:00", "10:30", 550000, 50));
+    dschuyentau.push_back(LichTrinh("SE2", "Ha Noi", "Sai Gon", "20/10/2025", "19:30", "16:00", 850000, 40));
+    dschuyentau.push_back(LichTrinh("SE3", "Ha Noi", "Hue", "20/10/2025", "06:00", "18:00", 450000, 60));
+    dschuyentau.push_back(LichTrinh("SE4", "Sai Gon", "Nha Trang", "21/10/2025", "07:00", "15:00", 320000, 45));
+    dschuyentau.push_back(LichTrinh("SE5", "Da Nang", "Sai Gon", "21/10/2025", "08:00", "18:30", 420000, 55));
+    dschuyentau.push_back(LichTrinh("SE6", "Hue", "Ha Noi", "22/10/2025", "09:00", "21:00", 470000, 48));
+    dschuyentau.push_back(LichTrinh("SE7", "Sai Gon", "Da Nang", "22/10/2025", "20:00", "09:00", 800000, 35));
+    dschuyentau.push_back(LichTrinh("SE8", "Nha Trang", "Sai Gon", "23/10/2025", "05:30", "13:00", 350000, 40));
+    dschuyentau.push_back(LichTrinh("SE9", "Hai Phong", "Ha Noi", "23/10/2025", "06:00", "09:00", 200000, 60));
+    dschuyentau.push_back(LichTrinh("SE10", "Phan Thiet", "Sai Gon", "24/10/2025", "14:00", "19:00", 300000, 30));
+    dschuyentau.push_back(LichTrinh("SE11", "Quy Nhon", "Da Nang", "24/10/2025", "07:00", "15:00", 400000, 25));
+    dschuyentau.push_back(LichTrinh("SE12", "Thanh Hoa", "Vinh", "25/10/2025", "10:00", "13:00", 180000, 50));
+
+
     int choice;
+    
     do {
         cout << "\n=== HE THONG QUAN LY VE TAU ===\n";
         cout << "1. Them ga tau\n";
@@ -675,8 +722,8 @@ int main() {
         cout << "0. Thoat\n";
         cout << "Chon chuc nang: ";
         cin >> choice;
-
-        switch (choice) {
+        
+        switch(choice) {
             case 1:
                 themgatau();
                 break;
@@ -730,13 +777,22 @@ int main() {
                 }
                 break;
             }
+                break;
             case 0:
-                cout << "Thoat chuong trinh.\n";
+                cout << "\nCam on ban da su dung he thong!\n";
+                cout << "Hen gap lai!\n";
                 break;
             default:
-                cout << "Lua chon khong hop le! Vui long chon lai.\n";
+                cout << "\nLua chon khong hop le! Vui long chon lai.\n";
         }
-    } while (choice != 0);
-
+        
+        if (choice != 0) {
+            cout << "Nhan Enter de tiep tuc..." << endl;
+            cin.ignore();
+            cin.get();
+        }
+        
+    } while(choice != 0);
+    
     return 0;
 }
