@@ -109,13 +109,13 @@ public:
     long getGiaVe() const { return GiaVe; }
 };
 
-// ===== KHAI BAO BIEN TOAN CUC =====
+// KHAI BAO BIEN TOAN CUC
 vector<GaTau> dsgatau;
 vector<LichTrinh> dschuyentau;
 vector<Ve> dsveta;
 const string MATKHAU = "admin123";
 
-// ===== KHAI BAO HAM XU LY =====
+// KHAI BAO HAM XU LY
 bool xacminhmatkhau();
 bool kiemTraEmail(const string& email);
 bool kiemTraSDT(const string& sdt);
@@ -131,14 +131,14 @@ void huyveta();
 void tracuuveta();
 void xemhanhkhach();
 
-// ===== DINH NGHIA HAM KIEM TRA EMAIL =====
+// DINH NGHIA HAM KIEM TRA EMAIL
 bool kiemTraEmail(const string& email) {
     size_t at = email.find('@');
     size_t dot = email.find('.', at);
     return (at != string::npos && dot != string::npos && dot > at);
 }
 
-// ===== CLASS PhieuDatVe =====
+
 class PhieuDatVe {
 private:
     int soLuong;
@@ -181,7 +181,7 @@ public:
     }
 };
 
-// ================================================================
+
 bool xacminhmatkhau() {
     string nhapmk;
     cout << "Nhap mat khau quan tri: "; 
@@ -796,3 +796,4 @@ int main() {
     
     return 0;
 }
+
