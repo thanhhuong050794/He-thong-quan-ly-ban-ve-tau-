@@ -1,4 +1,4 @@
-// Dữ liệu mẫu từ code C++
+
 const sampleData = {
     stations: [
         { code: "HN", name: "Hà Nội", address: "120 Lê Duẩn, Hoàn Kiếm, Hà Nội", description: "Ga trung tâm thủ đô" },
@@ -26,7 +26,7 @@ const sampleData = {
         { trainCode: "SE11", fromStation: "Quy Nhon", toStation: "Đà Nẵng", date: "24/10/2025", departureTime: "07:00", arrivalTime: "15:00", price: 400000, seats: 25 },
         { trainCode: "SE12", fromStation: "Thanh Hóa", toStation: "Vinh", date: "25/10/2025", departureTime: "10:00", arrivalTime: "13:00", price: 180000, seats: 50 }
     ],
-    // Dữ liệu menu từ dichvukhac.cpp với hình ảnh
+   
     menu: [
         { id: "MA01", name: "Phở bò", category: "Do an", price: 50000 },
         { id: "MA02", name: "Bánh mì thịt", category: "Do an", price: 25000 },
@@ -78,8 +78,6 @@ function initializeApp() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('bookingDate').min = tomorrow.toISOString().split('T')[0];
     document.getElementById('travelDate').min = tomorrow.toISOString().split('T')[0];
-    
-    // Hiển thị section mặc định
     showSection('home');
 }
 
@@ -843,8 +841,6 @@ function bookTrain(trainCode) {
     }
 }
 
-// ===================== EMAILJS FUNCTIONS =====================
-
 // Khởi tạo EmailJS
 function initializeEmailJS() {
     if (typeof emailjs !== 'undefined') {
@@ -892,8 +888,6 @@ async function sendConfirmationEmail(email, verificationCode, bookingInfo) {
         return false;
     }
 }
-
-// ===================== VEHICLE SERVICE FUNCTIONS =====================
 
 // Kiểm tra vé đã mua
 function checkVehicleBooking() {
@@ -990,8 +984,6 @@ function submitVehicleService() {
     document.getElementById('vehicleBookingInfo').style.display = 'none';
     document.getElementById('vehicleForm').style.display = 'none';
 }
-
-// ===================== FOOD SERVICE FUNCTIONS =====================
 
 // Load menu
 function loadMenu() {
@@ -1161,8 +1153,6 @@ function submitFoodOrder() {
     currentOrder.items = [];
     updateOrderTotal();
 }
-
-// ===================== SERVICE MANAGEMENT FUNCTIONS =====================
 
 // Hiển thị sub-tab
 function showSubTab(subTabName) {
@@ -1479,3 +1469,4 @@ window.onclick = function(event) {
         event.target.style.display = 'none';
     }
 }
+
