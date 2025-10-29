@@ -981,7 +981,6 @@ function bookTrain(trainCode) {
     }
 }
 
-// ===================== EMAILJS FUNCTIONS =====================
 
 // Khởi tạo EmailJS
 function initializeEmailJS() {
@@ -996,7 +995,7 @@ async function sendConfirmationEmail(email, verificationCode, bookingInfo) {
     currentVerificationCode = verificationCode;
     
     // Kiểm tra EmailJS có được cấu hình không
-    if (EMAILJS_SERVICE_ID === 'service_1234567' || EMAILJS_PUBLIC_KEY === 'your_public_key_here') {
+    if (EMAILJS_SERVICE_ID === 'service_1234567' || EMAILJS_PUBLIC_KEY === 'your_public_key_here')  {
         console.log('EmailJS chưa được cấu hình, sử dụng chế độ demo');
         showMessage(`Mã xác nhận demo: ${verificationCode}`, 'info');
         return true;
@@ -1017,7 +1016,11 @@ async function sendConfirmationEmail(email, verificationCode, bookingInfo) {
             from_station: bookingInfo.trip.fromStation,
             to_station: bookingInfo.trip.toStation,
             departure_time: bookingInfo.trip.departureTime,
-            total_amount: formatCurrency(bookingInfo.trip.price)
+            total_amount: formatCurrency(bookingInfo.trip.price),
+            from_name: 'TrainBooking',
+            to_name: bookingInfo.passenger.name,
+            reply_to: email,
+            message: `Ma xac nhan: ${verificationCode}`
         };
 
         const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
@@ -1025,13 +1028,13 @@ async function sendConfirmationEmail(email, verificationCode, bookingInfo) {
         showMessage('Mã xác nhận đã được gửi qua email!', 'success');
         return true;
     } catch (error) {
-        console.error('Error sending email:', error);
-        showMessage(`Lỗi gửi email. Mã xác nhận demo: ${verificationCode}`, 'error');
+        const errorText = (error && (error.text || error.message)) ? (error.text || error.message) : 'Unknown error';
+        console.error('Error sending email:', errorText, error);
+        showMessage(`Lỗi gửi email. Chi tiết: ${errorText}`, 'error');
         return false;
     }
 }
 
-// ===================== VEHICLE SERVICE FUNCTIONS =====================
 
 // Kiểm tra vé đã mua
 function checkVehicleBooking() {
