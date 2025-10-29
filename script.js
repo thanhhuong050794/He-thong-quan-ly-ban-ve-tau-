@@ -1,4 +1,4 @@
-
+// Dữ liệu mẫu từ code C++
 const sampleData = {
     stations: [
         { code: "HN", name: "Hà Nội", address: "120 Lê Duẩn, Hoàn Kiếm, Hà Nội", description: "Ga trung tâm thủ đô" },
@@ -26,7 +26,7 @@ const sampleData = {
         { trainCode: "SE11", fromStation: "Quy Nhon", toStation: "Đà Nẵng", date: "24/10/2025", departureTime: "07:00", arrivalTime: "15:00", price: 400000, seats: 25 },
         { trainCode: "SE12", fromStation: "Thanh Hóa", toStation: "Vinh", date: "25/10/2025", departureTime: "10:00", arrivalTime: "13:00", price: 180000, seats: 50 }
     ],
-   
+    // Dữ liệu menu từ dichvukhac.cpp với hình ảnh
     menu: [
         { id: "MA01", name: "Phở bò", category: "Do an", price: 50000 },
         { id: "MA02", name: "Bánh mì thịt", category: "Do an", price: 25000 },
@@ -47,13 +47,14 @@ const sampleData = {
 // Biến toàn cục
 let currentBooking = null;
 let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
-let stations = [...sampleData.stations];
-let schedules = [...sampleData.schedules];
-let menu = [...sampleData.menu];
+let stations = [...sampleData.stations]; // Fallback data
+let schedules = [...sampleData.schedules]; // Fallback data
+let menu = [...sampleData.menu]; // Fallback data
 let vehicleOrders = JSON.parse(localStorage.getItem('vehicleOrders')) || [];
 let foodOrders = JSON.parse(localStorage.getItem('foodOrders')) || [];
 let currentOrder = { items: [] };
 let currentVerificationCode = null; // Lưu mã xác nhận hiện tại
+let dataLoadedFromDB = false; // Flag để biết dữ liệu đã load từ DB chưa
 
 // EmailJS Configuration
 const EMAILJS_SERVICE_ID = 'service_1234567'; // Thay bằng Service ID thật
@@ -63,12 +64,145 @@ const EMAILJS_PUBLIC_KEY = 'your_public_key_here'; // Thay bằng Public Key th�
 // Khởi tạo ứng dụng
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
-    loadStations();
-    loadSchedules();
-    loadMenu();
+    loadDataFromDatabase(); // Load dữ liệu từ database trước
     setupEventListeners();
     initializeEmailJS();
 });
+
+// ===================== DATABASE LOADING FUNCTIONS =====================
+
+// Load dữ liệu từ database với fallback
+async function loadDataFromDatabase() {
+    try {
+        console.log('Đang tải dữ liệu từ database...');
+        
+        // Thử load tất cả dữ liệu cùng lúc
+        const response = await fetch('index.php?action=get_all_data');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            // Cập nhật dữ liệu từ database
+            if (result.data.stations && result.data.stations.length > 0) {
+                stations = result.data.stations;
+                console.log(`Đã load ${stations.length} ga tàu từ database`);
+            }
+            
+            if (result.data.schedules && result.data.schedules.length > 0) {
+                schedules = result.data.schedules;
+                console.log(`Đã load ${schedules.length} lịch trình từ database`);
+            }
+            
+            if (result.data.menu && result.data.menu.length > 0) {
+                menu = result.data.menu;
+                console.log(`Đã load ${menu.length} món ăn từ database`);
+            }
+            
+            dataLoadedFromDB = true;
+            console.log('✅ Dữ liệu đã được tải thành công từ database');
+            updateDBStatus(true, 'Kết nối database thành công');
+            
+        } else {
+            throw new Error(result.message || 'Không thể tải dữ liệu từ database');
+        }
+        
+    } catch (error) {
+        console.warn('⚠️ Không thể kết nối database, sử dụng dữ liệu mẫu:', error.message);
+        dataLoadedFromDB = false;
+        updateDBStatus(false, 'Sử dụng dữ liệu mẫu');
+        
+        // Hiển thị thông báo cho user
+        showMessage('Đang sử dụng dữ liệu mẫu. Một số tính năng có thể bị hạn chế.', 'warning');
+    }
+    
+    // Load UI với dữ liệu hiện tại (từ DB hoặc fallback)
+    loadStations();
+    loadSchedules();
+    loadMenu();
+}
+
+// Load dữ liệu riêng lẻ từ database
+async function loadStationsFromDB() {
+    try {
+        const response = await fetch('index.php?action=get_stations');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            stations = result.data;
+            loadStations();
+            return true;
+        }
+    } catch (error) {
+        console.warn('Không thể load stations từ DB:', error);
+    }
+    return false;
+}
+
+async function loadSchedulesFromDB() {
+    try {
+        const response = await fetch('index.php?action=get_schedules');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            schedules = result.data;
+            loadSchedules();
+            return true;
+        }
+    } catch (error) {
+        console.warn('Không thể load schedules từ DB:', error);
+    }
+    return false;
+}
+
+async function loadMenuFromDB() {
+    try {
+        const response = await fetch('index.php?action=get_menu');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            menu = result.data;
+            loadMenu();
+            return true;
+        }
+    } catch (error) {
+        console.warn('Không thể load menu từ DB:', error);
+    }
+    return false;
+}
+
+// Refresh dữ liệu từ database
+async function refreshDataFromDB() {
+    console.log('Đang làm mới dữ liệu từ database...');
+    updateDBStatus(null, 'Đang làm mới...');
+    await loadDataFromDatabase();
+    showMessage('Dữ liệu đã được làm mới!', 'success');
+}
+
+// Cập nhật trạng thái database
+function updateDBStatus(connected, message) {
+    const statusIcon = document.getElementById('dbStatusIcon');
+    const statusText = document.getElementById('dbStatusText');
+    
+    if (!statusIcon || !statusText) return;
+    
+    if (connected === true) {
+        statusIcon.style.color = '#27ae60'; // Xanh lá
+        statusIcon.className = 'fas fa-circle';
+        statusText.textContent = message || 'Kết nối database thành công';
+    } else if (connected === false) {
+        statusIcon.style.color = '#e74c3c'; // Đỏ
+        statusIcon.className = 'fas fa-circle';
+        statusText.textContent = message || 'Sử dụng dữ liệu mẫu';
+    } else {
+        statusIcon.style.color = '#f39c12'; // Vàng
+        statusIcon.className = 'fas fa-spinner fa-spin';
+        statusText.textContent = message || 'Đang kết nối...';
+    }
+}
 
 // Khởi tạo ứng dụng
 function initializeApp() {
@@ -78,6 +212,8 @@ function initializeApp() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('bookingDate').min = tomorrow.toISOString().split('T')[0];
     document.getElementById('travelDate').min = tomorrow.toISOString().split('T')[0];
+    
+    // Hiển thị section mặc định
     showSection('home');
 }
 
@@ -171,6 +307,12 @@ function showSection(sectionName) {
             break;
         case 'manage':
             loadManageData();
+            break;
+        case 'services':
+            // Refresh menu data khi vào services
+            if (dataLoadedFromDB) {
+                loadMenuFromDB();
+            }
             break;
     }
 }
@@ -841,6 +983,8 @@ function bookTrain(trainCode) {
     }
 }
 
+// ===================== EMAILJS FUNCTIONS =====================
+
 // Khởi tạo EmailJS
 function initializeEmailJS() {
     if (typeof emailjs !== 'undefined') {
@@ -888,6 +1032,8 @@ async function sendConfirmationEmail(email, verificationCode, bookingInfo) {
         return false;
     }
 }
+
+// ===================== VEHICLE SERVICE FUNCTIONS =====================
 
 // Kiểm tra vé đã mua
 function checkVehicleBooking() {
@@ -984,6 +1130,8 @@ function submitVehicleService() {
     document.getElementById('vehicleBookingInfo').style.display = 'none';
     document.getElementById('vehicleForm').style.display = 'none';
 }
+
+// ===================== FOOD SERVICE FUNCTIONS =====================
 
 // Load menu
 function loadMenu() {
@@ -1153,6 +1301,8 @@ function submitFoodOrder() {
     currentOrder.items = [];
     updateOrderTotal();
 }
+
+// ===================== SERVICE MANAGEMENT FUNCTIONS =====================
 
 // Hiển thị sub-tab
 function showSubTab(subTabName) {
@@ -1469,4 +1619,3 @@ window.onclick = function(event) {
         event.target.style.display = 'none';
     }
 }
-
