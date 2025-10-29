@@ -5,7 +5,7 @@
     <li><strong>Dichvu.cpp</strong> – là file đề xuất bổ sung thêm tính năng để hệ thống hoàn thiện hơn (trang web của hệ thống đường sắt Việt Nam thực tế chưa có).</li>
     <li><strong>Index.html</strong>, <strong>styles.css</strong>, <strong>script.js</strong>, <strong>menu-images.js</strong> – là các file thiết kế cho phần giao diện người dùng (UI – Frontend).</li>
     <li><strong>Index.php</strong>, <strong>Ketnoi.php</strong> - là các file xử lý phần kết nối Database bằng Microsoft SQL Sever (Backend).</li>
-    <li><strong>TrainBookingSystem.sql - là database của hệ thống quản lý bao gồm các ga tàu, các chuyến tàu, menu đặt đồ ăn.</li>
+    <li><strong>TrainBookingSystem.sql</strong> - là database của hệ thống quản lý bao gồm các ga tàu, các chuyến tàu, menu đặt đồ ăn.</li>
 </ul>
 
 Link website (dùng file index.html chưa có kết nối database, dùng tạm dữ liệu mẫu có sẵn): https://thanhhuong050794.github.io/He-thong-quan-ly-ban-ve-tau-/ <br>
