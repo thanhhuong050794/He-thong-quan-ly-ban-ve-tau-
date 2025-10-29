@@ -186,17 +186,17 @@ if (isset($_GET['action'])) {
                     <div class="hero-stats">
                         <div class="stat-card">
                             <i class="fas fa-train"></i>
-                            <h3>50+</h3>
+                            <h3>134</h3>
                             <p>Chuyến tàu</p>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-building"></i>
-                            <h3>20+</h3>
+                            <h3>37</h3>
                             <p>Ga tàu</p>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-users"></i>
-                            <h3>1000+</h3>
+                            <h3>5000+</h3>
                             <p>Hành khách</p>
                         </div>
                     </div>
