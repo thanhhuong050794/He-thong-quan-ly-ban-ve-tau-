@@ -26,7 +26,7 @@ const sampleData = {
         { trainCode: "SE11", fromStation: "Quy Nhon", toStation: "Đà Nẵng", date: "24/10/2025", departureTime: "07:00", arrivalTime: "15:00", price: 400000, seats: 25 },
         { trainCode: "SE12", fromStation: "Thanh Hóa", toStation: "Vinh", date: "25/10/2025", departureTime: "10:00", arrivalTime: "13:00", price: 180000, seats: 50 }
     ],
-    // Dữ liệu menu từ dichvukhac.cpp với hình ảnh
+    // Dữ liệu menu 
     menu: [
         { id: "MA01", name: "Phở bò", category: "Do an", price: 50000 },
         { id: "MA02", name: "Bánh mì thịt", category: "Do an", price: 25000 },
@@ -57,26 +57,24 @@ let currentVerificationCode = null; // Lưu mã xác nhận hiện tại
 let dataLoadedFromDB = false; // Flag để biết dữ liệu đã load từ DB chưa
 
 // EmailJS Configuration
-const EMAILJS_SERVICE_ID = 'service_1234567'; // Thay bằng Service ID thật
-const EMAILJS_TEMPLATE_ID = 'template_1234567'; // Thay bằng Template ID thật
-const EMAILJS_PUBLIC_KEY = 'your_public_key_here'; // Thay bằng Public Key thật
+const EMAILJS_SERVICE_ID = 'service_dfwzj6i'; 
+const EMAILJS_TEMPLATE_ID = 'template_zo2qlx8'; 
+const EMAILJS_PUBLIC_KEY = '3UwgHWItm4iiojX1L'; 
 
 // Khởi tạo ứng dụng
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
-    loadDataFromDatabase(); // Load dữ liệu từ database trước
+    loadDataFromDatabase(); 
     setupEventListeners();
     initializeEmailJS();
 });
 
-// ===================== DATABASE LOADING FUNCTIONS =====================
 
 // Load dữ liệu từ database với fallback
 async function loadDataFromDatabase() {
     try {
         console.log('Đang tải dữ liệu từ database...');
         
-        // Thử load tất cả dữ liệu cùng lúc
         const response = await fetch('index.php?action=get_all_data');
         
         if (!response.ok) {
@@ -103,7 +101,7 @@ async function loadDataFromDatabase() {
             }
             
             dataLoadedFromDB = true;
-            console.log('✅ Dữ liệu đã được tải thành công từ database');
+            console.log(' Dữ liệu đã được tải thành công từ database');
             updateDBStatus(true, 'Kết nối database thành công');
             
         } else {
@@ -1619,3 +1617,4 @@ window.onclick = function(event) {
         event.target.style.display = 'none';
     }
 }
+
