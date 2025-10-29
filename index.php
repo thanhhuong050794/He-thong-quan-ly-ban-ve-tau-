@@ -670,6 +670,17 @@ if (isset($_GET['action'])) {
 
     <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        (function() {
+            try {
+                if (window.emailjs && typeof emailjs.init === 'function') {
+                    emailjs.init('3UwgHWItm4iiojX1L');
+                }
+            } catch (e) {
+                console.warn('EmailJS init failed:', e);
+            }
+        })();
+    </script>
     <script src="menu-images.js"></script>
     <script src="script.js"></script>
 </body>
