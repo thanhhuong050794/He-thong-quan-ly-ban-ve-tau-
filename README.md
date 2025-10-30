@@ -9,6 +9,6 @@
 </ul>
 
 Link website (dùng file index.html chưa có kết nối database, dùng tạm dữ liệu mẫu có sẵn): https://thanhhuong050794.github.io/He-thong-quan-ly-ban-ve-tau-/ <br>
-Link website (dùng file index.php) đã kết nối Database, hiện tại chỉ chạy được trên localhost. 
+Link website (dùng file index.php) đã kết nối Database. https://inconsequently-complicated-sherika.ngrok-free.dev/trainbooking/index.php (web không ổn định do không bật được máy chủ liên tục)
 
 
