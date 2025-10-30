@@ -1,3 +1,157 @@
+(function() {
+    function createRevealObserver() {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return null; 
+        }
+
+        const options = {
+            root: null,
+            rootMargin: '0px 0px -10% 0px',
+            threshold: 0.1
+        };
+
+        const onIntersect = (entries, observer) => {
+            for (const entry of entries) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    observer.unobserve(entry.target);
+                }
+            }
+        };
+
+        return new IntersectionObserver(onIntersect, options);
+    }
+
+    const observer = createRevealObserver();
+
+    function markRevealTargets(context) {
+        const root = context || document;
+        const selectors = [
+            '.stat-card',
+            '.station-card',
+            '.trip-card',
+            '.summary-card',
+            '.order-card',
+            '.menu-item',
+            '.service-form',
+            '.payment-section',
+            '.vehicle-order-card',
+            '.food-order-card'
+        ];
+        const nodes = root.querySelectorAll(selectors.join(','));
+        nodes.forEach(node => {
+            node.classList.add('reveal-item');
+            if (observer) observer.observe(node);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        markRevealTargets(document);
+    });
+
+    
+    window.revealObserveAll = function(context) {
+        markRevealTargets(context || document);
+    };
+})();
+
+// Toast notifications
+(function() {
+    const prefersReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function ensureToastContainer(position) {
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const positions = ['top-right','bottom-right','top-center','bottom-center'];
+        positions.forEach(p => container.classList.remove(p));
+        container.classList.add(position || 'top-right');
+        return container;
+    }
+
+    function iconForType(type) {
+        switch (type) {
+            case 'success': return '<i class="fas fa-check-circle" aria-hidden="true"></i>';
+            case 'error': return '<i class="fas fa-triangle-exclamation" aria-hidden="true"></i>';
+            default: return '<i class="fas fa-circle-info" aria-hidden="true"></i>';
+        }
+    }
+
+    function showToast(message, options) {
+        const opts = Object.assign({ type: 'info', duration: 3000 }, options || {});
+        const container = ensureToastContainer('bottom-right');
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${opts.type}`;
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.innerHTML = `
+            <span class="toast-icon">${iconForType(opts.type)}</span>
+            <span class="toast-message">${message}</span>
+            <span class="toast-close" title="Đóng"><i class="fas fa-xmark" aria-hidden="true"></i></span>
+        `;
+
+        const remove = () => {
+            toast.classList.remove('show');
+            const cleanup = () => toast.remove();
+            if (prefersReduced()) { cleanup(); } else { setTimeout(cleanup, 250); }
+        };
+
+        const closeBtn = toast.querySelector('.toast-close');
+        closeBtn.addEventListener('click', remove);
+
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+
+        if (opts.duration > 0) {
+            setTimeout(remove, opts.duration);
+        }
+    }
+
+    window.showToast = showToast;
+    window.showSuccess = (msg, d) => showToast(msg, { type: 'success', duration: d });
+    window.showError = (msg, d) => showToast(msg, { type: 'error', duration: d });
+    window.showInfo = (msg, d) => showToast(msg, { type: 'info', duration: d });
+})();
+
+(function() {
+    function convertMessageNode(node) {
+        if (!node || !node.classList || !node.classList.contains('message')) return false;
+        const text = node.textContent || '';
+        let type = 'info';
+        if (node.classList.contains('success')) type = 'success';
+        else if (node.classList.contains('error')) type = 'error';
+        try { node.remove(); } catch (e) { /* ignore */ }
+        if (typeof window.showToast === 'function') {
+            window.showToast(text, { type: type, duration: 5000 });
+        }
+        return true;
+    }
+
+    function scanExistingMessages() {
+        document.querySelectorAll('.message').forEach(convertMessageNode);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        scanExistingMessages();
+        const observer = new MutationObserver(mutations => {
+            mutations.forEach(m => {
+                m.addedNodes.forEach(n => {
+                    if (n.nodeType === 1) { // element
+                        if (!convertMessageNode(n)) {
+                            // also scan its descendants if any
+                            n.querySelectorAll && n.querySelectorAll('.message').forEach(convertMessageNode);
+                        }
+                    }
+                });
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+})();
 // Dữ liệu mẫu từ code C++
 const sampleData = {
     stations: [
@@ -54,7 +208,9 @@ let vehicleOrders = JSON.parse(localStorage.getItem('vehicleOrders')) || [];
 let foodOrders = JSON.parse(localStorage.getItem('foodOrders')) || [];
 let currentOrder = { items: [] };
 let currentVerificationCode = null; // Lưu mã xác nhận hiện tại
-let dataLoadedFromDB = false; // Flag để biết dữ liệu đã load từ DB chưa
+let dataLoadedFromDB = false; // Flag để biết dữ liệu đã load từ Database chưa
+let isAdminAuthenticated = sessionStorage.getItem('isAdminAuth') === 'true';
+let pendingSectionAfterLogin = null;
 
 // EmailJS Configuration
 const EMAILJS_SERVICE_ID = 'service_dfwzj6i'; 
@@ -67,6 +223,9 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDataFromDatabase(); 
     setupEventListeners();
     initializeEmailJS();
+    startHeroTypingEffect();
+    setupCountUpAnimation();
+    initSnow();
 });
 
 
@@ -117,7 +276,7 @@ async function loadDataFromDatabase() {
         showMessage('Đang sử dụng dữ liệu mẫu. Một số tính năng có thể bị hạn chế.', 'warning');
     }
     
-    // Load UI với dữ liệu hiện tại (từ DB hoặc fallback)
+    // Load UI với dữ liệu hiện tại (từ Database hoặc fallback)
     loadStations();
     loadSchedules();
     loadMenu();
@@ -215,9 +374,131 @@ function initializeApp() {
     showSection('home');
 }
 
-// Thiết lập event listeners
+function startHeroTypingEffect() {
+    const el = document.getElementById('heroTitle');
+    if (!el) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const fullText = el.textContent.trim();
+    el.textContent = '';
+    el.classList.add('typing');
+    let idx = 0;
+    const typeNext = () => {
+        if (idx <= fullText.length) {
+            el.textContent = fullText.slice(0, idx);
+            idx++;
+            setTimeout(typeNext, 50); 
+        } else {
+            el.classList.remove('typing');
+            el.textContent = fullText; 
+        }
+    };
+    typeNext();
+}
+
+//
+function setupCountUpAnimation() {
+    const counters = document.querySelectorAll('.count-up');
+    if (!counters.length) return;
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animate = (el) => {
+        const target = Number(el.getAttribute('data-target') || '0');
+        const suffix = el.getAttribute('data-suffix') || '';
+        if (reduceMotion) { el.textContent = target.toLocaleString('vi-VN') + suffix; return; }
+        const duration = 2000; // ms (slower)
+        const start = performance.now();
+        const startVal = 0;
+        const step = (now) => {
+            const progress = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+            const value = Math.floor(startVal + (target - startVal) * eased);
+            el.textContent = value.toLocaleString('vi-VN') + suffix;
+            if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    };
+
+    
+    const io = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animate(entry.target);
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.4 });
+
+    counters.forEach(c => io.observe(c));
+}
+
+// SNOW EFFECT 
+
+// tạo bột tuyết
+function initSnow() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let canvas = document.getElementById('snowCanvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'snowCanvas';
+        canvas.className = 'snow-canvas';
+        document.body.appendChild(canvas);
+    }
+
+    const ctx = canvas.getContext('2d');
+    let width, height, flakes, flakeCount;
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        const density = Math.min(260, Math.max(90, Math.floor((width * height) / 20000)));
+        flakeCount = density;
+        createFlakes();
+    }
+// tạo bột tuyết
+    function createFlakes() {
+        flakes = new Array(flakeCount).fill(0).map(() => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: 0.9 + Math.random() * 2.6, 
+            s: 0.35 + Math.random() * 1.0, 
+            w: 0.5 + Math.random() * 1.5, 
+            a: Math.random() * Math.PI * 2 
+        }));
+    }
+
+// vẽ bột tuyết
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath();
+        for (let i = 0; i < flakeCount; i++) {
+            const f = flakes[i];
+            f.y += f.s; // rơi
+            f.a += 0.01; // lệch
+            f.x += Math.sin(f.a) * f.w * 0.3; // lệch ngang
+
+            // vòng tròn lại nếu rơi ra ngoài
+            if (f.y > height + 5) { f.y = -5; f.x = Math.random() * width; }
+            if (f.x > width + 5) { f.x = -5; }
+            if (f.x < -5) { f.x = width + 5; }
+
+            // vẽ bột tuyết
+            ctx.moveTo(f.x, f.y);
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        requestAnimationFrame(draw);
+    }
+
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+}
+
+// Thiết lập các sự kiện
 function setupEventListeners() {
-    // Navigation
+
+    // điều hướng theo từng section
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const section = this.getAttribute('data-section');
@@ -225,7 +506,7 @@ function setupEventListeners() {
         });
     });
 
-    // Tab management
+    // quản lý tab
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const tab = this.getAttribute('data-tab');
@@ -233,7 +514,7 @@ function setupEventListeners() {
         });
     });
 
-    // Sub-tab management for services
+    // quản lý sub-tab cho dịch vụ
     document.querySelectorAll('.sub-tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const subTab = this.getAttribute('data-sub-tab');
@@ -241,7 +522,7 @@ function setupEventListeners() {
         });
     });
 
-    // Menu category filters
+    // lọc món ăn theo danh mục
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const category = this.getAttribute('data-category');
@@ -249,7 +530,7 @@ function setupEventListeners() {
         });
     });
 
-    // Order status filters
+    // lọc đơn hàng theo trạng thái
     document.querySelectorAll('.status-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const status = this.getAttribute('data-status');
@@ -257,13 +538,13 @@ function setupEventListeners() {
         });
     });
 
-    // Station search
+    // tìm kiếm ga tàu
     const stationSearch = document.getElementById('stationSearch');
     if (stationSearch) {
         stationSearch.addEventListener('input', searchStations);
     }
     
-    // Booking form validation
+    // kiểm tra form đặt vé
     const passengerCCCD = document.getElementById('passengerCCCD');
     const passengerPhone = document.getElementById('passengerPhone');
     const passengerEmail = document.getElementById('passengerEmail');
@@ -272,7 +553,7 @@ function setupEventListeners() {
     if (passengerPhone) passengerPhone.addEventListener('input', validatePhone);
     if (passengerEmail) passengerEmail.addEventListener('input', validateEmail);
     
-    // Vehicle service events
+    // sự kiện dịch vụ xe
     const vehicleType = document.getElementById('vehicleType');
     if (vehicleType) {
         vehicleType.addEventListener('change', updateVehicleFee);
@@ -289,7 +570,7 @@ function showSection(sectionName) {
     // Hiển thị section được chọn
     document.getElementById(sectionName).classList.add('active');
     
-    // Cập nhật navigation
+    // Cập nhật điều hướng
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -304,14 +585,48 @@ function showSection(sectionName) {
             loadSchedules();
             break;
         case 'manage':
+            if (!isAdminAuthenticated) {
+                // chặn và yêu cầu mật khẩu admin
+                pendingSectionAfterLogin = 'manage';
+                // quay lại điều hướng active trước (home)
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('[data-section="home"]').classList.add('active');
+                document.getElementById('home').classList.add('active');
+                document.getElementById('manage').classList.remove('active');
+                document.getElementById('adminLoginModal').style.display = 'block';
+                setTimeout(setupAdminPasswordToggle, 0);
+                showMessage('Khu vực quản trị yêu cầu mật khẩu.', 'info', 4000);
+                return;
+            }
             loadManageData();
             break;
         case 'services':
-            // Refresh menu data khi vào services
+            // làm mới dữ liệu menu khi vào services
             if (dataLoadedFromDB) {
                 loadMenuFromDB();
             }
             break;
+    }
+}
+
+// quy trình đăng nhập admin
+function submitAdminLogin() {
+    const input = document.getElementById('adminPassword');
+    const pwd = (input && input.value) ? input.value : '';
+    if (pwd === 'Admin@123') {
+        isAdminAuthenticated = true;
+        sessionStorage.setItem('isAdminAuth', 'true');
+        closeModal('adminLoginModal');
+        input.value = '';
+        showSuccess('Đăng nhập quản trị thành công!', 3000);
+        const target = pendingSectionAfterLogin || 'manage';
+        pendingSectionAfterLogin = null;
+        showSection(target);
+        // Sau khi vào khu vực quản trị, chuyển sang tab Hành khách để xem danh sách
+        try { showTab('manage-passengers'); } catch (e) {}
+    } else {
+        showError('Mật khẩu không đúng!', 4000);
+        if (input) input.focus();
     }
 }
 
@@ -391,7 +706,7 @@ function searchStations() {
 
 // Load lịch trình tàu
 function loadSchedules() {
-    // Populate station dropdowns
+
     const fromStationSelect = document.getElementById('fromStation');
     const toStationSelect = document.getElementById('toStation');
     const bookingFromSelect = document.getElementById('bookingFromStation');
@@ -409,7 +724,7 @@ function loadSchedules() {
         }
     });
     
-    // Load schedule table
+    // Load bảng lịch trình
     loadScheduleTable();
 }
 
@@ -591,7 +906,7 @@ function updateBookingSummary() {
     const passengerSummary = document.getElementById('passengerSummary');
     const totalAmount = document.getElementById('totalAmount');
     
-    // Trip summary
+    // tóm tắt chuyến tàu
     tripSummary.innerHTML = `
         <p><strong>Mã tàu:</strong> ${currentBooking.trip.trainCode}</p>
         <p><strong>Tuyến:</strong> ${currentBooking.trip.fromStation} → ${currentBooking.trip.toStation}</p>
@@ -600,7 +915,7 @@ function updateBookingSummary() {
         <p><strong>Giờ đến:</strong> ${currentBooking.trip.arrivalTime}</p>
     `;
     
-    // Passenger summary
+    // tóm tắt hành khách
     const passenger = {
         name: document.getElementById('passengerName').value,
         cccd: document.getElementById('passengerCCCD').value,
@@ -619,7 +934,7 @@ function updateBookingSummary() {
         <p><strong>Giới tính:</strong> ${passenger.gender}</p>
     `;
     
-    // Total amount
+    // tổng tiền
     totalAmount.innerHTML = `
         <p><strong>Tổng tiền:</strong> ${formatCurrency(currentBooking.trip.price)}</p>
     `;
@@ -640,7 +955,7 @@ async function confirmBooking() {
         return;
     }
     
-    // Create booking
+    // tạo đơn hàng
     const booking = {
         id: currentBooking.bookingId,
         trip: currentBooking.trip,
@@ -650,11 +965,11 @@ async function confirmBooking() {
         verificationCode: verificationCode
     };
     
-    // Add to bookings
+    // thêm vào danh sách đơn hàng
     bookings.push(booking);
     localStorage.setItem('bookings', JSON.stringify(bookings));
     
-    // Update seat count
+    // cập nhật số ghế còn lại
     const scheduleIndex = schedules.findIndex(s => s.trainCode === currentBooking.trip.trainCode);
     if (scheduleIndex !== -1) {
         schedules[scheduleIndex].seats--;
@@ -662,7 +977,7 @@ async function confirmBooking() {
     
     showMessage('Đặt vé thành công! Mã vé: ' + booking.id, 'success');
     
-    // Reset form
+    // reset form
     currentBooking = null;
     currentVerificationCode = null;
     document.getElementById('addStationForm').reset();
@@ -683,12 +998,6 @@ function loadBookingManagement() {
     if (!bookingResults) return;
     
     bookingResults.innerHTML = `
-        <div class="search-section">
-            <input type="text" id="bookingSearch" placeholder="Nhập CCCD để tra cứu vé...">
-            <button onclick="searchBookings()">
-                <i class="fas fa-search"></i> Tìm kiếm
-            </button>
-        </div>
         <div id="bookingList"></div>
     `;
 }
@@ -742,33 +1051,50 @@ function loadPassengerList() {
     const passengerList = document.getElementById('passengerList');
     if (!passengerList) return;
     
-    const uniquePassengers = [];
-    const passengerMap = new Map();
+    if (!bookings || bookings.length === 0) {
+        passengerList.innerHTML = '<p class="message info">Chưa có hành khách nào. Hệ thống sẽ hiển thị khi có vé được đặt.</p>';
+        return;
+    }
     
-    bookings.forEach(booking => {
-        const key = booking.passenger.cccd;
-        if (!passengerMap.has(key)) {
-            passengerMap.set(key, booking.passenger);
-            uniquePassengers.push(booking.passenger);
-        }
-    });
+    // Tạo bảng liệt kê toàn bộ hành khách đã đặt vé
+    const rowsHtml = bookings.map((b, idx) => `
+        <tr>
+            <td>${idx + 1}</td>
+            <td>${b.passenger.name}</td>
+            <td>${b.passenger.cccd}</td>
+            <td>${b.passenger.phone}</td>
+            <td>${b.passenger.email}</td>
+            <td>${b.trip.trainCode}</td>
+            <td>${b.trip.fromStation} → ${b.trip.toStation}</td>
+            <td>${b.trip.date}</td>
+            <td>${b.trip.departureTime}</td>
+            <td>${formatCurrency(b.trip.price)}</td>
+        </tr>
+    `).join('');
     
-    passengerList.innerHTML = '';
-    
-    uniquePassengers.forEach(passenger => {
-        const passengerCard = document.createElement('div');
-        passengerCard.className = 'passenger-card';
-        passengerCard.innerHTML = `
-            <div class="passenger-info">
-                <h4>${passenger.name}</h4>
-                <p><strong>CCCD:</strong> ${passenger.cccd}</p>
-                <p><strong>SĐT:</strong> ${passenger.phone}</p>
-                <p><strong>Email:</strong> ${passenger.email}</p>
-                <p><strong>Giới tính:</strong> ${passenger.gender}</p>
-            </div>
-        `;
-        passengerList.appendChild(passengerCard);
-    });
+    passengerList.innerHTML = `
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Họ tên</th>
+                        <th>CCCD</th>
+                        <th>SĐT</th>
+                        <th>Email</th>
+                        <th>Mã tàu</th>
+                        <th>Tuyến</th>
+                        <th>Ngày</th>
+                        <th>Giờ đi</th>
+                        <th>Giá vé</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+        </div>
+    `;
 }
 
 // Load quản lý ga tàu
@@ -818,7 +1144,7 @@ function addStation() {
         return;
     }
     
-    // Check if station code already exists
+    // kiểm tra mã ga tàu đã tồn tại chưa
     if (stations.find(s => s.code === code)) {
         showMessage('Mã ga đã tồn tại!', 'error');
         return;
@@ -861,12 +1187,12 @@ function confirmCancelBooking() {
         return;
     }
     
-    // Remove booking
+    // xóa đơn hàng
     const bookingIndex = bookings.findIndex(b => b.id === bookingId);
     if (bookingIndex !== -1) {
         const booking = bookings[bookingIndex];
         
-        // Restore seat
+        // phục hồi số ghế
         const scheduleIndex = schedules.findIndex(s => s.trainCode === booking.trip.trainCode);
         if (scheduleIndex !== -1) {
             schedules[scheduleIndex].seats++;
@@ -892,20 +1218,20 @@ function showMessage(message, type = 'info') {
     messageDiv.className = `message ${type}`;
     messageDiv.textContent = message;
     
-    // Remove existing messages
+    // xóa các thông báo đã có
     document.querySelectorAll('.message').forEach(msg => msg.remove());
     
-    // Add new message
+    // thêm thông báo mới
     const mainContent = document.querySelector('.main-content');
     mainContent.insertBefore(messageDiv, mainContent.firstChild);
     
-    // Auto remove after 5 seconds
+    // tự động xóa sau 5 giây
     setTimeout(() => {
         messageDiv.remove();
     }, 5000);
 }
 
-// Validation functions
+// hàm kiểm tra
 function validateCCCD(input) {
     const cccd = input.value;
     if (cccd.length !== 12 || !/^\d+$/.test(cccd)) {
@@ -917,6 +1243,7 @@ function validateCCCD(input) {
     }
 }
 
+// hàm kiểm tra số điện thoại
 function validatePhone(input) {
     const phone = input.value;
     if (phone.length < 10 || phone.length > 11 || !/^\d+$/.test(phone)) {
@@ -927,7 +1254,7 @@ function validatePhone(input) {
         return true;
     }
 }
-
+// hàm kiểm tra email
 function validateEmail(input) {
     const email = input.value;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -940,7 +1267,7 @@ function validateEmail(input) {
     }
 }
 
-// Utility functions
+// hàm format tiền tệ
 function formatCurrency(amount) {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -948,6 +1275,7 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
+// hàm format ngày tháng
 function formatDateForDisplay(dateString) {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
@@ -956,20 +1284,22 @@ function formatDateForDisplay(dateString) {
     return `${day}/${month}/${year}`;
 }
 
+// hàm tạo mã đơn hàng
 function generateBookingId() {
     return 'BK' + Date.now().toString().slice(-8);
 }
-
+// hàm tạo mã xác nhận
 function generateVerificationCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Quick action functions
+// hàm hiển thị quản lý đơn hàng
 function showManageBooking() {
     showSection('manage');
     showTab('manage-bookings');
 }
 
+// hàm đặt vé
 function bookTrain(trainCode) {
     showSection('booking');
     const trip = schedules.find(s => s.trainCode === trainCode);
@@ -1015,12 +1345,15 @@ async function sendConfirmationEmail(email, verificationCode, bookingInfo) {
             train_code: bookingInfo.trip.trainCode,
             from_station: bookingInfo.trip.fromStation,
             to_station: bookingInfo.trip.toStation,
+            departure_date: bookingInfo.trip.date,
             departure_time: bookingInfo.trip.departureTime,
+            arrival_date: bookingInfo.trip.date,
+            arrival_time: bookingInfo.trip.arrivalTime,
             total_amount: formatCurrency(bookingInfo.trip.price),
             from_name: 'TrainBooking',
             to_name: bookingInfo.passenger.name,
             reply_to: email,
-            message: `Ma xac nhan: ${verificationCode}`
+            message: `Ma xac nhan: ${verificationCode}.`
         };
 
         const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
@@ -1132,7 +1465,7 @@ function submitVehicleService() {
     document.getElementById('vehicleForm').style.display = 'none';
 }
 
-// ===================== FOOD SERVICE FUNCTIONS =====================
+//  FOOD SERVICE FUNCTIONS 
 
 // Load menu
 function loadMenu() {
@@ -1145,7 +1478,7 @@ function loadMenu() {
         const menuItem = document.createElement('div');
         menuItem.className = 'menu-item';
         
-        // Lấy hình ảnh từ menuImages hoặc sử dụng placeholder
+        // Lấy hình ảnh từ menuImages 
         const imageUrl = (typeof menuImages !== 'undefined' && menuImages[item.id]) 
             ? menuImages[item.id] 
             : `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfjJcg${encodeURIComponent(item.name)}PC90ZXh0Pgo8L3N2Zz4K`;
@@ -1294,7 +1627,7 @@ function submitFoodOrder() {
     document.getElementById('foodCustomerName').value = '';
     document.getElementById('foodCustomerPhone').value = '';
     
-    // Reset menu quantities
+    // reset số lượng món
     menu.forEach(item => {
         document.getElementById(`qty_${item.id}`).value = 0;
     });
@@ -1303,7 +1636,7 @@ function submitFoodOrder() {
     updateOrderTotal();
 }
 
-// ===================== SERVICE MANAGEMENT FUNCTIONS =====================
+// SERVICE MANAGEMENT FUNCTIONS 
 
 // Hiển thị sub-tab
 function showSubTab(subTabName) {
@@ -1614,10 +1947,29 @@ function showDemoCode() {
     }
 }
 
-// Close modals when clicking outside
+// đóng modal khi click ngoài 
 window.onclick = function(event) {
     if (event.target.classList.contains('modal')) {
         event.target.style.display = 'none';
     }
 }
 
+function setupAdminPasswordToggle() {
+    const pwInput = document.getElementById('adminPassword');
+    const toggleBtn = document.getElementById('toggleAdminPassword');
+    const eyeIcon = document.getElementById('adminPasswordEye');
+    if (pwInput && toggleBtn && eyeIcon && !toggleBtn.hasAttribute('data-listening')) {
+        toggleBtn.setAttribute('data-listening', 'true');
+        toggleBtn.addEventListener('click', function() {
+            if (pwInput.type === "password") {
+                pwInput.type = "text";
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                pwInput.type = "password";
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+    }
+}
