@@ -1,4 +1,4 @@
-/* Reset and Base Styles */
+/* reset và các style cơ bản */
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +12,7 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
 }
-
+/* container chứa nội dung */
 .container { 
     max-width: 1200px;
     margin: 0 auto;
@@ -21,7 +21,7 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* Header Styles */
+/* thanh đầu trang */
 .header {
     background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
     color: white;
@@ -31,7 +31,21 @@ body {
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
+/* subtle animated gradient cho thanh đầu trang */
+@media (prefers-reduced-motion: no-preference) {
+    .header {
+        background-size: 200% 200%;
+        animation: headerGradientShift 12s ease-in-out infinite;
+    }
+}
 
+@keyframes headerGradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* logo */
 .logo {
     display: flex;
     align-items: center;
@@ -41,20 +55,44 @@ body {
 }
 
 .logo i {
-    font-size: 2rem;
-    color: #f39c12;
+    font-size: 1.6rem;
+    color: #ffffff;
 }
 
 .logo h1 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 600;
 }
 
+/* animated gradient text cho tiêu đề thanh đầu trang */
+@media (prefers-reduced-motion: no-preference) {
+    .gradient-text {
+        background-image: linear-gradient(90deg, #ffffff 0%, #cfe8ff 25%, #ffffff 50%, #cfe8ff 75%, #ffffff 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: gradientTextShift 8s linear infinite;
+        text-shadow: 0 0 10px rgba(255,255,255,0.15);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gradient-text {
+        color: #ffffff;
+    }
+}
+
+@keyframes gradientTextShift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+/* menu */
 .nav {
     display: flex;
     gap: 0.5rem;
 }
-
+/* nút menu */
 .nav-btn {
     background: rgba(255,255,255,0.1);
     border: none;
@@ -68,18 +106,49 @@ body {
     gap: 0.5rem;
     font-size: 0.9rem;
 }
-
+/* hover nút menu */
 .nav-btn:hover {
     background: rgba(255,255,255,0.2);
     transform: translateY(-2px);
 }
-
+/* active nút menu */
 .nav-btn.active {
     background: #f39c12;
     box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
 }
+/* gentle breathing animation cho nút menu active */
+@media (prefers-reduced-motion: no-preference) {
+    .nav-btn.active {
+        animation: navPulse 2.4s ease-in-out infinite;
+    }
+}
+/* animation cho nút menu active */
+@keyframes navPulse {
+    0%, 100% { transform: translateY(0); box-shadow: 0 4px 15px rgba(243,156,18,0.30); }
+    50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 8px 22px rgba(243,156,18,0.40); }
+}
 
-/* Main Content */
+/* reveal-on-scroll animation utilities */
+.reveal-item {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 600ms ease, transform 600ms ease;
+}
+/* reveal-on-scroll animation cho item */
+.reveal-item.in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* giảm hiệu ứng khi tắt reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .reveal-item {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* nội dung chính */
 .main-content {
     padding: 2rem;
 }
@@ -98,7 +167,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Hero Section */
+/* phần chính */
 .hero {
     text-align: center;
     padding: 3rem 0;
@@ -106,26 +175,56 @@ body {
     border-radius: 15px;
     margin-bottom: 2rem;
 }
-
+/* tiêu đề phần chính */
 .hero h2 {
     font-size: 2.5rem;
     color: #2c3e50;
     margin-bottom: 1rem;
 }
 
+/* animation cho tiêu đề phần chính */
+@media (prefers-reduced-motion: no-preference) {
+    #heroTitle.typing::after {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        height: 1em;
+        background: #2c3e50;
+        margin-left: 4px;
+        animation: caretBlink 1s steps(1) infinite;
+        vertical-align: -0.1em;
+    }
+}
+
+@keyframes caretBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+/* canvas overlay snow */
+.snow-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 20;
+}
+/* mô tả phần chính */
 .hero p {
     font-size: 1.2rem;
     color: #6c757d;
     margin-bottom: 2rem;
 }
 
+/* thống kê phần chính */
 .hero-stats {
     display: flex;
     justify-content: center;
     gap: 2rem;
     flex-wrap: wrap;
 }
-
+/* card thống kê */
 .stat-card {
     background: white;
     padding: 2rem;
@@ -135,23 +234,23 @@ body {
     min-width: 150px;
     transition: transform 0.3s ease;
 }
-
+/* hover card thống kê */
 .stat-card:hover {
     transform: translateY(-5px);
 }
-
+/* icon card thống kê */
 .stat-card i {
     font-size: 2rem;
     color: #3498db;
     margin-bottom: 1rem;
 }
-
+/* tiêu đề card thống kê */
 .stat-card h3 {
     font-size: 2rem;
     color: #2c3e50;
     margin-bottom: 0.5rem;
 }
-
+/* mô tả card thống kê */
 .stat-card p {
     color: #6c757d;
     font-weight: 500;
@@ -196,8 +295,7 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
 }
-
-/* Section Headers */
+/* tiêu đề phần */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -212,7 +310,7 @@ body {
     font-size: 2rem;
 }
 
-/* Buttons */
+/* nút */
 .btn {
     padding: 0.8rem 1.5rem;
     border: none;
@@ -226,38 +324,38 @@ body {
     gap: 0.5rem;
     text-decoration: none;
 }
-
+/* nút primary */
 .btn-primary {
     background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
 }
-
+/* hover nút primary */
 .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
 }
-
+/* nút secondary */
 .btn-secondary {
     background: #6c757d;
     color: white;
 }
-
+/* hover nút secondary */
 .btn-secondary:hover {
     background: #5a6268;
     transform: translateY(-2px);
 }
-
+/* nút danger */
 .btn-danger {
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
     color: white;
 }
-
+/* hover nút danger */
 .btn-danger:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
 }
 
-/* Search Bar */
+/* thanh tìm kiếm */
 .search-bar {
     display: flex;
     gap: 1rem;
@@ -265,6 +363,7 @@ body {
     align-items: center;
 }
 
+/* input thanh tìm kiếm */
 .search-bar input {
     flex: 1;
     padding: 0.8rem 1rem;
@@ -288,19 +387,19 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
 }
-
+/* hover nút thanh tìm kiếm */
 .search-bar button:hover {
     background: #2980b9;
     transform: translateY(-2px);
 }
 
-/* Stations Grid */
+/* lưới ga */
 .stations-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
 }
-
+/* card ga */
 .station-card {
     background: white;
     border-radius: 15px;
@@ -309,28 +408,28 @@ body {
     transition: transform 0.3s ease;
     border-left: 4px solid #3498db;
 }
-
+/* hover card ga */
 .station-card:hover {
     transform: translateY(-5px);
 }
-
+/* tiêu đề card ga */
 .station-card h3 {
     color: #2c3e50;
     margin-bottom: 0.5rem;
 }
-
+/* mô tả card ga */
 .station-card p {
     color: #6c757d;
     margin-bottom: 0.5rem;
 }
-
+/* nút ga */
 .station-actions {
     margin-top: 1rem;
     display: flex;
     gap: 0.5rem;
 }
 
-/* Schedule Filters */
+/* lọc chuyến */
 .schedule-filters {
     background: #f8f9fa;
     padding: 1.5rem;
@@ -341,19 +440,19 @@ body {
     flex-wrap: wrap;
     align-items: end;
 }
-
+/* group lọc chuyến */
 .filter-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     min-width: 150px;
 }
-
+/* label lọc chuyến */
 .filter-group label {
     font-weight: 500;
     color: #2c3e50;
 }
-
+/* select và input lọc chuyến */
 .filter-group select,
 .filter-group input {
     padding: 0.8rem;
@@ -362,26 +461,26 @@ body {
     font-size: 0.9rem;
     transition: border-color 0.3s ease;
 }
-
+/* focus select và input lọc chuyến */
 .filter-group select:focus,
 .filter-group input:focus {
     outline: none;
     border-color: #3498db;
 }
 
-/* Schedule Table */
+/* bảng chuyến */
 .schedule-table {
     background: white;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
-
+/* table bảng chuyến */
 .schedule-table table {
     width: 100%;
     border-collapse: collapse;
 }
-
+/* header bảng chuyến */
 .schedule-table th {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
@@ -389,12 +488,12 @@ body {
     text-align: left;
     font-weight: 600;
 }
-
+/* cell bảng chuyến */
 .schedule-table td {
     padding: 1rem;
     border-bottom: 1px solid #e9ecef;
 }
-
+/* hover row bảng chuyến */
 .schedule-table tr:hover {
     background: #f8f9fa;
 }
@@ -406,23 +505,23 @@ body {
     padding: 2rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
-
+/* form step */
 .form-step {
     display: none;
 }
-
+/* active form step */
 .form-step.active {
     display: block;
     animation: fadeIn 0.5s ease-in;
 }
-
+/* tiêu đề form step */
 .form-step h3 {
     color: #2c3e50;
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #e9ecef;
 }
-
+/* thanh tìm kiến chuyến */
 .trip-search {
     display: flex;
     gap: 1rem;
@@ -430,25 +529,25 @@ body {
     align-items: end;
     margin-bottom: 2rem;
 }
-
+/* group form */
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     min-width: 200px;
 }
-
+/* row form */
 .form-row {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
 }
-
+/* label form */
 .form-group label {
     font-weight: 500;
     color: #2c3e50;
 }
-
+/* input, select, textarea form */
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -458,23 +557,23 @@ body {
     font-size: 0.9rem;
     transition: border-color 0.3s ease;
 }
-
+/* focus input, select, textarea form */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: #3498db;
 }
-
+/* textarea form */
 .form-group textarea {
     resize: vertical;
     min-height: 80px;
 }
-
+/* kết quả tìm kiếm chuyến */
 .trip-results {
     margin-top: 2rem;
 }
-
+/* card kết quả tìm kiếm chuyến */
 .trip-card {
     background: #f8f9fa;
     border-radius: 10px;
@@ -483,11 +582,11 @@ body {
     border-left: 4px solid #3498db;
     transition: transform 0.3s ease;
 }
-
+/* hover card kết quả tìm kiếm chuyến */
 .trip-card:hover {
     transform: translateX(5px);
 }
-
+/* tiêu đề card kết quả tìm kiếm chuyến */
 .trip-card h4 {
     color: #2c3e50;
     margin-bottom: 0.5rem;
@@ -593,6 +692,11 @@ body {
     transition: all 0.3s ease;
     color: #6c757d;
     font-weight: 500;
+    font-size: 1.06rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
 }
 
 .tab-btn:hover {
@@ -602,6 +706,14 @@ body {
 .tab-btn.active {
     color: #3498db;
     border-bottom-color: #3498db;
+    background: rgba(52, 152, 219, 0.10);
+    box-shadow: 0 6px 16px rgba(52,152,219,0.12);
+}
+
+/* icon và animation cho manage tabs */
+.manage-tabs .tab-btn .tab-icon { font-size: 1rem; }
+@media (prefers-reduced-motion: no-preference) {
+    .manage-tabs .tab-btn.active .tab-icon { animation: subtleBounce 1.2s ease-in-out infinite; }
 }
 
 .tab-content {
@@ -852,6 +964,61 @@ body {
     border: 1px solid #bee5eb;
 }
 
+/* Toast (thông báo popup)*/
+.toast-container {
+    position: fixed;
+    z-index: 5000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; 
+}
+
+/* Positions */
+.toast-container.top-right { top: 16px; right: 16px; }
+.toast-container.bottom-right { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); right: 16px; }
+.toast-container.top-center { top: 16px; left: 50%; transform: translateX(-50%); }
+.toast-container.bottom-center { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); }
+
+.toast {
+    min-width: 260px;
+    max-width: 420px;
+    background: white;
+    color: #2c3e50;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    pointer-events: auto; 
+    transform: translateY(-8px) scale(0.98);
+    transition: opacity .25s ease, transform .25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.toast .toast-icon { font-size: 1.1rem; }
+.toast .toast-message { flex: 1; line-height: 1.4; }
+.toast .toast-close { cursor: pointer; opacity: .6; transition: opacity .2s; }
+.toast .toast-close:hover { opacity: 1; }
+
+.toast.success { border-left: 4px solid #27ae60; }
+.toast.error { border-left: 4px solid #e74c3c; }
+.toast.info { border-left: 4px solid #3498db; }
+
+@media (max-width: 480px) {
+    .toast-container.top-right,
+    .toast-container.top-center { top: auto; bottom: 12px; right: 12px; left: auto; transform: none; }
+    .toast-container.bottom-right,
+    .toast-container.bottom-center { bottom: 12px; right: 12px; left: auto; transform: none; }
+    .toast { min-width: auto; max-width: calc(100vw - 24px); }
+}
+
 /* Services Section Styles */
 .services-tabs {
     display: flex;
@@ -870,6 +1037,11 @@ body {
     transition: all 0.3s ease;
     color: #6c757d;
     font-weight: 500;
+    font-size: 1.05rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
 }
 
 .services-tabs .tab-btn:hover {
@@ -879,6 +1051,18 @@ body {
 .services-tabs .tab-btn.active {
     color: #3498db;
     border-bottom-color: #3498db;
+    background: rgba(52, 152, 219, 0.12);
+    box-shadow: 0 6px 16px rgba(52,152,219,0.12);
+}
+
+.services-tabs .tab-btn .tab-icon { font-size: 1rem; }
+@media (prefers-reduced-motion: no-preference) {
+    .services-tabs .tab-btn.active .tab-icon { animation: subtleBounce 1.2s ease-in-out infinite; }
+}
+
+@keyframes subtleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
 }
 
 /* Service Form Styles */
@@ -1150,6 +1334,11 @@ body {
     transition: all 0.3s ease;
     color: #6c757d;
     font-weight: 500;
+    font-size: 1.02rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
 }
 
 .sub-tab-btn:hover {
@@ -1159,6 +1348,13 @@ body {
 .sub-tab-btn.active {
     color: #3498db;
     border-bottom-color: #3498db;
+    background: rgba(52,152,219,0.10);
+    box-shadow: 0 6px 16px rgba(52,152,219,0.10);
+}
+
+.sub-tab-btn .tab-icon { font-size: 1rem; }
+@media (prefers-reduced-motion: no-preference) {
+    .sub-tab-btn.active .tab-icon { animation: subtleBounce 1.2s ease-in-out infinite; }
 }
 
 .sub-tab-content {
@@ -1404,7 +1600,7 @@ body {
     color: #e74c3c;
 }
 
-/* Responsive Design for Services */
+/* responsive design cho services */
 @media (max-width: 768px) {
     .services-tabs {
         flex-direction: column;
@@ -1463,7 +1659,7 @@ body {
     }
 }
 
-/* Utility Classes */
+/* lớp tiện ích */
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .mb-1 { margin-bottom: 0.5rem; }
