@@ -137,6 +137,7 @@ if (isset($_GET['action'])) {
     exit;
 }
 ?>
+
 <!-- HTML -->
 <!DOCTYPE html>
 <html lang="vi">
@@ -144,7 +145,7 @@ if (isset($_GET['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HỆ THỐNG QUẢN LÝ VÉ TÀU</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=<?php echo filemtime('styles.css'); ?>">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -153,7 +154,7 @@ if (isset($_GET['action'])) {
         <header class="header">
             <div class="logo">
                 <i class="fas fa-train"></i>
-                <h1 style="text-align: center; width: 30%;">HỆ THỐNG <br> QUẢN LÝ VÉ TÀU</h1>
+                <h1 class="gradient-text" style="text-align: center; width: 30%;">HỆ THỐNG <br> QUẢN LÝ VÉ TÀU</h1>
             <nav class="nav">
                 <button class="nav-btn active" data-section="home">
                     <i class="fas fa-home"></i> Trang chủ
@@ -181,22 +182,22 @@ if (isset($_GET['action'])) {
             <!-- Home Section -->
             <section id="home" class="section active">
                 <div class="hero">
-                    <h2>Chào mừng đến với Hệ thống quản lý vé tàu</h2>
+                    <h2 id="heroTitle" aria-label="Chào mừng đến với Hệ thống quản lý vé tàu">Chào mừng đến với Hệ thống quản lý vé tàu</h2>
                     <p>Đặt vé tàu nhanh chóng, tiện lợi và an toàn</p>
                     <div class="hero-stats">
                         <div class="stat-card">
                             <i class="fas fa-train"></i>
-                            <h3>134</h3>
+                            <h3><span class="count-up" data-target="134">134</span></h3>
                             <p>Chuyến tàu</p>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-building"></i>
-                            <h3>37</h3>
+                            <h3><span class="count-up" data-target="37">37</span></h3>
                             <p>Ga tàu</p>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-users"></i>
-                            <h3>5000+</h3>
+                            <h3><span class="count-up" data-target="5000" data-suffix="+">5000+</span></h3>
                             <p>Hành khách</p>
                         </div>
                     </div>
@@ -420,9 +421,18 @@ if (isset($_GET['action'])) {
                 </div>
                 
                 <div class="services-tabs">
-                    <button class="tab-btn active" data-tab="vehicle-service">Gửi xe lên tàu</button>
-                    <button class="tab-btn" data-tab="food-service">Đặt đồ ăn</button>
-                    <button class="tab-btn" data-tab="service-management">Quản lý dịch vụ</button>
+                    <button class="tab-btn active" data-tab="vehicle-service">
+                        <i class="fas fa-car-side tab-icon" aria-hidden="true"></i>
+                        Gửi xe lên tàu
+                    </button>
+                    <button class="tab-btn" data-tab="food-service">
+                        <i class="fas fa-utensils tab-icon" aria-hidden="true"></i>
+                        Đặt đồ ăn
+                    </button>
+                    <button class="tab-btn" data-tab="service-management">
+                        <i class="fas fa-tools tab-icon" aria-hidden="true"></i>
+                        Quản lý dịch vụ
+                    </button>
                 </div>
                 
                 <div class="tab-content">
@@ -527,8 +537,14 @@ if (isset($_GET['action'])) {
                         <div class="service-management">
                             <h3>Quản Lý Dịch Vụ</h3>
                             <div class="management-tabs">
-                                <button class="sub-tab-btn active" data-sub-tab="vehicle-orders">Đơn gửi xe</button>
-                                <button class="sub-tab-btn" data-sub-tab="food-orders">Đơn đồ ăn</button>
+                                <button class="sub-tab-btn active" data-sub-tab="vehicle-orders">
+                                    <i class="fas fa-car-side tab-icon" aria-hidden="true"></i>
+                                    Đơn gửi xe
+                                </button>
+                                <button class="sub-tab-btn" data-sub-tab="food-orders">
+                                    <i class="fas fa-utensils tab-icon" aria-hidden="true"></i>
+                                    Đơn đồ ăn
+                                </button>
                             </div>
                             
                             <div class="sub-tab-content">
@@ -570,9 +586,18 @@ if (isset($_GET['action'])) {
                 </div>
                 
                 <div class="manage-tabs">
-                    <button class="tab-btn active" data-tab="manage-bookings">Quản lý vé</button>
-                    <button class="tab-btn" data-tab="manage-passengers">Hành khách</button>
-                    <button class="tab-btn" data-tab="manage-stations">Ga tàu</button>
+                    <button class="tab-btn active" data-tab="manage-bookings">
+                        <i class="fas fa-receipt tab-icon" aria-hidden="true"></i>
+                        Quản lý vé
+                    </button>
+                    <button class="tab-btn" data-tab="manage-passengers">
+                        <i class="fas fa-user-friends tab-icon" aria-hidden="true"></i>
+                        Hành khách
+                    </button>
+                    <button class="tab-btn" data-tab="manage-stations">
+                        <i class="fas fa-landmark tab-icon" aria-hidden="true"></i>
+                        Ga tàu
+                    </button>
                 </div>
                 
                 <div class="tab-content">
@@ -608,6 +633,28 @@ if (isset($_GET['action'])) {
     </div>
 
     <!-- Modals -->
+    <div id="adminLoginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Đăng Nhập Quản Trị</h3>
+                <span class="close" onclick="closeModal('adminLoginModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+            <div class="form-group" style="position: relative;">
+                <label>Mật khẩu quản trị:</label>
+                <input type="password" id="adminPassword" placeholder="Nhập mật khẩu" style="padding-right:38px;" />
+                <span id="toggleAdminPassword" tabindex="0" style="position: absolute; right: 12px; top: 38px; cursor: pointer; color: #666;">
+                    <i class="fa fa-eye" id="adminPasswordEye"></i>
+                </span>
+            </div>
+                <p class="mb-1" style="color:#6c757d; font-size: 0.9rem;">Chỉ quản trị viên mới được truy cập khu vực này.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('adminLoginModal')">Hủy</button>
+                <button class="btn btn-primary" onclick="submitAdminLogin()">Đăng nhập</button>
+            </div>
+        </div>
+    </div>
     <div id="addStationModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
