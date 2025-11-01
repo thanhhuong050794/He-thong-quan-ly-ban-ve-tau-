@@ -66,6 +66,35 @@ public:
     }
 };
 
+class NhanVien {
+private:
+    string Username;
+    string Password;
+
+public:
+    NhanVien() {}
+    NhanVien(string username, string password) {
+        Username = username;
+        Password = password;
+    }
+    string getUsername() {
+        return Username;
+    }
+    string getPassword() {
+        return Password;
+    }
+    void setUsername(string username) {
+        Username = username;
+    }
+    void setPassword(string password) {
+        Password = password;
+    }
+    void hienThiThongTin() {
+        cout << "Username: " << Username << endl;
+        cout << "Password: " << Password << endl;
+    }
+};
+
 class LichTrinh {
 public:
     string maTau;
@@ -796,4 +825,5 @@ int main() {
     
     return 0;
 }
+
 
