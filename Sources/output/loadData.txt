@@ -1,0 +1,26 @@
+[GA TAU]
+HN|Ha Noi|120 Le Duan, Hoan Kiem, Ha Noi|Ga chính thủ đô
+DN|Da Nang|202 Hai Phong, Thanh Khe, Da Nang|Ga miền Trung
+SG|Sai Gon|1 Nguyen Thong, Q3, TP.HCM|Ga lớn nhất miền Nam
+HUE|Hue|2 Bui Thi Xuan, Hue|Ga cố đô
+NT|Nha Trang|17 Thai Nguyen, Nha Trang|Ga thành phố biển
+HP|Hai Phong|1 Luong Khanh Thien, Hai Phong|Ga lớn tại thành phố cảng
+PT|Phan Thiet|1 Nguyen Du, Phan Thiet|Ga gần biển Phan Thiết
+QT|Quy Nhon|2 Nguyen Hue, Quy Nhon|Ga trung tâm thành phố Quy Nhơn
+TH|Thanh Hoa|3 Le Loi, Thanh Hoa|Ga lớn khu vực Bắc Trung Bộ
+Vinh|Vinh|4 Nguyen Sy Sach, Vinh|Ga trung chuyển miền Trung
+
+[LICH TRINH]
+SE1|Ha Noi|Da Nang|20/10/2025|19:00|10:30|550000|50
+SE2|Ha Noi|Sai Gon|20/10/2025|19:30|16:00|850000|40
+SE3|Ha Noi|Hue|20/10/2025|06:00|18:00|450000|60
+SE4|Sai Gon|Nha Trang|21/10/2025|07:00|15:00|320000|45
+SE5|Da Nang|Sai Gon|21/10/2025|08:00|18:30|420000|55
+SE6|Hue|Ha Noi|22/10/2025|09:00|21:00|470000|48
+SE7|Sai Gon|Da Nang|22/10/2025|20:00|09:00|800000|35
+SE8|Nha Trang|Sai Gon|23/10/2025|05:30|13:00|350000|40
+SE9|Hai Phong|Ha Noi|23/10/2025|06:00|09:00|200000|60
+SE10|Phan Thiet|Sai Gon|24/10/2025|14:00|19:00|300000|30
+SE11|Quy Nhon|Da Nang|24/10/2025|07:00|15:00|400000|25
+SE12|Thanh Hoa|Vinh|25/10/2025|10:00|13:00|180000|50
+
